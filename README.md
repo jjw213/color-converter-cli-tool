@@ -12,3 +12,4 @@ python main.py
 
 - 기본 CLI 인터페이스
 - 색상 형식 안내
+- RGB에서 HEX로의 변환
