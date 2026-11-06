@@ -7,6 +7,24 @@ def rgb_to_hex(r, g, b):
         raise ValueError("RGB 값은 0에서 255 사이여야 합니다.")
     return f"#{r:02x}{g:02x}{b:02x}"
 
+def hex_to_rgb(hex_value):
+    """HEX 값을 RGB로 변환합니다."""
+    # HEX 값이 #으로 시작하지 않으면 추가
+    if not hex_value.startswith('#'):
+        hex_value = '#' + hex_value
+
+    # 6자리 HEX 값인지 확인
+    if len(hex_value) != 7:
+        raise ValueError("HEX 값은 6자리여야 합니다.")
+
+    try:
+        r = int(hex_value[1:3], 16)
+        g = int(hex_value[3:5], 16)
+        b = int(hex_value[5:7], 16)
+        return (r, g, b)
+    except ValueError:
+        raise ValueError("유효하지 않은 HEX 값입니다.")
+
 def main():
     if len(sys.argv) < 2:
         print("Color Converter CLI Tool")
@@ -24,6 +42,10 @@ def main():
             b = int(sys.argv[-1])
             hex_value = rgb_to_hex(r, g, b)
             print(hex_value)
+        elif from_format == "hex" and to_format == "rgb":
+            hex_value = sys.argv[-1]
+            r, g, b = hex_to_rgb(hex_value)
+            print(f"{r} {g} {b}")
         else:
             print("지원되지 않는 변환 형식입니다.")
             sys.exit(1)

@@ -1,7 +1,7 @@
 import unittest
 import sys
 from io import StringIO
-from main import main, rgb_to_hex
+from main import main, rgb_to_hex, hex_to_rgb
 
 class TestMain(unittest.TestCase):
     def test_main_prints_help(self):
@@ -80,6 +80,53 @@ class TestMain(unittest.TestCase):
             sys.stdout = sys.__stdout__
             output = captured_output.getvalue().strip()
             self.assertIn("지원되지 않는 변환 형식입니다.", output)
+        finally:
+            sys.argv = original_argv
+
+    def test_hex_to_rgb(self):
+        # 테스트 케이스: hex 값, 기대하는 (r, g, b) 튜플
+        test_cases = [
+            ("#000000", (0, 0, 0)),
+            ("#ffffff", (255, 255, 255)),
+            ("#ff0000", (255, 0, 0)),
+            ("#00ff00", (0, 255, 0)),
+            ("#0000ff", (0, 0, 255)),
+            ("#808080", (128, 128, 128)),
+            ("00ff00", (0, 255, 0)), # # 없이 입력해도 됩니다.
+        ]
+
+        for hex_value, expected in test_cases:
+            with self.subTest(hex_value=hex_value):
+                result = hex_to_rgb(hex_value)
+                self.assertEqual(result, expected)
+
+    def test_hex_to_rgb_invalid_values(self):
+        # 유효하지 않은 HEX 값에 대해 예외를 발생시켜야 합니다.
+        with self.assertRaises(ValueError):
+            hex_to_rgb("#gg0000")  # 잘못된 HEX 문자
+        
+        with self.assertRaises(ValueError):
+            hex_to_rgb("#ff00")   # 4자리
+        
+        with self.assertRaises(ValueError):
+            hex_to_rgb("#ff00000")  # 8자리
+
+    def test_main_hex_to_rgb_conversion(self):
+        # HEX에서 RGB로의 변환 테스트
+        original_argv = sys.argv
+        try:
+            sys.argv = ["main.py", "--from", "hex", "--to", "rgb", "#ff0000"]
+            captured_output = StringIO()
+            sys.stdout = captured_output
+            
+            try:
+                main()
+            except SystemExit:
+                pass
+            
+            sys.stdout = sys.__stdout__
+            output = captured_output.getvalue().strip()
+            self.assertEqual(output, "255 0 0")
         finally:
             sys.argv = original_argv
 

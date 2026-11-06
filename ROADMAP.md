@@ -1,10 +1,12 @@
 # RGB, HEX, HSL 색상 값을 서로 변환하는 CLI 도구 로드맵
 
-진행: 2/12단계
+구성: Python
+
+진행: 3/12단계
 
 - [x] 1. 프로젝트 구조 및 CLI 뼈대 — 기본 파일 구조, CLI 인터페이스, 색상 형식 안내
 - [x] 2. RGB → HEX 변환 — RGB 값을 HEX로 변환하는 로직 구현
-- [ ] 3. HEX → RGB 변환 — HEX 값을 RGB로 변환하는 로직 구현
+- [x] 3. HEX → RGB 변환 — HEX 값을 RGB로 변환하는 로직 구현
 - [ ] 4. HSL → RGB 변환 — HSL 값을 RGB로 변환하는 로직 구현
 - [ ] 5. RGB → HSL 변환 — RGB 값을 HSL로 변환하는 로직 구현
 - [ ] 6. HEX → HSL 변환 — HEX 값을 HSL로 변환하는 로직 구현
