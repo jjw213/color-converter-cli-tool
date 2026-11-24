@@ -25,6 +25,32 @@ def hex_to_rgb(hex_value):
     except ValueError:
         raise ValueError("유효하지 않은 HEX 값입니다.")
 
+def hsl_to_rgb(h, s, l):
+    """HSL 값을 RGB로 변환합니다."""
+    # HSL 값 범위 검증
+    if not (0 <= h <= 360 and 0 <= s <= 100 and 0 <= l <= 100):
+        raise ValueError("HSL 값은 유효한 범위 내여야 합니다. H: 0-360, S: 0-100, L: 0-100")
+
+    # s와 l을 0-1로 변환
+    s_decimal = s / 100.0
+    l_decimal = l / 100.0
+
+    # HSL에서 RGB로 변환
+    if s_decimal == 0:
+        r = g = b = int(l_decimal * 255)
+    else:
+        hue_2_rgb = lambda p, q, t: p + (q - p) * t if t < 1 else p + (q - p) * (t - 1)
+        
+        q = l_decimal * (1 + s_decimal) if l_decimal < 0.5 else l_decimal + s_decimal - l_decimal * s_decimal
+        p = 2 * l_decimal - q
+        
+        t_h = h / 360.0
+        r = int(255 * hue_2_rgb(p, q, t_h + 1/3))
+        g = int(255 * hue_2_rgb(p, q, t_h))
+        b = int(255 * hue_2_rgb(p, q, t_h - 1/3))
+
+    return (r, g, b)
+
 def main():
     if len(sys.argv) < 2:
         print("Color Converter CLI Tool")
@@ -45,6 +71,12 @@ def main():
         elif from_format == "hex" and to_format == "rgb":
             hex_value = sys.argv[-1]
             r, g, b = hex_to_rgb(hex_value)
+            print(f"{r} {g} {b}")
+        elif from_format == "hsl" and to_format == "rgb":
+            h = int(sys.argv[-3])
+            s = int(sys.argv[-2])
+            l = int(sys.argv[-1])
+            r, g, b = hsl_to_rgb(h, s, l)
             print(f"{r} {g} {b}")
         else:
             print("지원되지 않는 변환 형식입니다.")

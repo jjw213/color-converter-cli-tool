@@ -1,7 +1,7 @@
 import unittest
 import sys
 from io import StringIO
-from main import main, rgb_to_hex, hex_to_rgb
+from main import main, rgb_to_hex, hex_to_rgb, hsl_to_rgb
 
 class TestMain(unittest.TestCase):
     def test_main_prints_help(self):
@@ -116,6 +116,64 @@ class TestMain(unittest.TestCase):
         original_argv = sys.argv
         try:
             sys.argv = ["main.py", "--from", "hex", "--to", "rgb", "#ff0000"]
+            captured_output = StringIO()
+            sys.stdout = captured_output
+            
+            try:
+                main()
+            except SystemExit:
+                pass
+            
+            sys.stdout = sys.__stdout__
+            output = captured_output.getvalue().strip()
+            self.assertEqual(output, "255 0 0")
+        finally:
+            sys.argv = original_argv
+
+    def test_hsl_to_rgb(self):
+        # 테스트 케이스: (h, s, l), 기대하는 (r, g, b) 튜플
+        test_cases = [
+            ((0, 0, 0), (0, 0, 0)),     # 검정
+            ((0, 0, 100), (255, 255, 255)), # 흰색
+            ((0, 100, 50), (255, 0, 0)),   # 빨강
+            ((120, 100, 50), (0, 255, 0)), # 녹색
+            ((240, 100, 50), (0, 0, 255)), # 파랑
+            ((60, 100, 50), (255, 255, 0)), # 노랑
+            ((300, 100, 50), (255, 0, 255)), # 마젠타
+            ((180, 100, 50), (0, 255, 255)), # 청록
+            ((0, 0, 50), (128, 128, 128)),  # 회색
+        ]
+
+        for (h, s, l), expected in test_cases:
+            with self.subTest(h=h, s=s, l=l):
+                result = hsl_to_rgb(h, s, l)
+                self.assertEqual(result, expected)
+
+    def test_hsl_to_rgb_invalid_values(self):
+        # 유효하지 않은 HSL 값에 대해 예외를 발생시켜야 합니다.
+        with self.assertRaises(ValueError):
+            hsl_to_rgb(-1, 50, 50)  # h가 범위 밖
+        
+        with self.assertRaises(ValueError):
+            hsl_to_rgb(361, 50, 50)  # h가 범위 밖
+        
+        with self.assertRaises(ValueError):
+            hsl_to_rgb(0, -1, 50)  # s가 범위 밖
+        
+        with self.assertRaises(ValueError):
+            hsl_to_rgb(0, 101, 50)  # s가 범위 밖
+        
+        with self.assertRaises(ValueError):
+            hsl_to_rgb(0, 50, -1)  # l가 범위 밖
+        
+        with self.assertRaises(ValueError):
+            hsl_to_rgb(0, 50, 101)  # l가 범위 밖
+
+    def test_main_hsl_to_rgb_conversion(self):
+        # HSL에서 RGB로의 변환 테스트
+        original_argv = sys.argv
+        try:
+            sys.argv = ["main.py", "--from", "hsl", "--to", "rgb", "0", "100", "50"]
             captured_output = StringIO()
             sys.stdout = captured_output
             

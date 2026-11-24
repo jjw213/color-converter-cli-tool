@@ -14,3 +14,4 @@ python main.py
 - 색상 형식 안내
 - RGB에서 HEX로의 변환
 - HEX에서 RGB로의 변환
+- HSL에서 RGB로의 변환
