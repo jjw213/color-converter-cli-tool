@@ -15,3 +15,4 @@ python main.py
 - RGB에서 HEX로의 변환
 - HEX에서 RGB로의 변환
 - HSL에서 RGB로의 변환
+- RGB에서 HSL로의 변환

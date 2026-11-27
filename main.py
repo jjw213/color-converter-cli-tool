@@ -51,6 +51,44 @@ def hsl_to_rgb(h, s, l):
 
     return (r, g, b)
 
+def rgb_to_hsl(r, g, b):
+    """RGB 값을 HSL로 변환합니다."""
+    # RGB 값 범위 검증
+    if not all(0 <= x <= 255 for x in [r, g, b]):
+        raise ValueError("RGB 값은 0에서 255 사이여야 합니다.")
+
+    # RGB 값을 0-1로 정규화
+    r_norm = r / 255.0
+    g_norm = g / 255.0
+    b_norm = b / 255.0
+
+    max_val = max(r_norm, g_norm, b_norm)
+    min_val = min(r_norm, g_norm, b_norm)
+    diff = max_val - min_val
+
+    # Luminance (명도)
+    l = (max_val + min_val) / 2
+
+    # Saturation (채도)
+    if diff == 0:
+        s = 0
+    else:
+        s = diff / (1 - abs(2 * l - 1))
+
+    # Hue (색조)
+    if diff == 0:
+        h = 0
+    elif max_val == r_norm:
+        h = (g_norm - b_norm) / diff % 6
+    elif max_val == g_norm:
+        h = (b_norm - r_norm) / diff + 2
+    else:  # max_val == b_norm
+        h = (r_norm - g_norm) / diff + 4
+    
+    h = h * 60  # 각도로 변환
+
+    return (int(h), int(s * 100), int(l * 100))
+
 def main():
     if len(sys.argv) < 2:
         print("Color Converter CLI Tool")
@@ -78,6 +116,12 @@ def main():
             l = int(sys.argv[-1])
             r, g, b = hsl_to_rgb(h, s, l)
             print(f"{r} {g} {b}")
+        elif from_format == "rgb" and to_format == "hsl":
+            r = int(sys.argv[-3])
+            g = int(sys.argv[-2])
+            b = int(sys.argv[-1])
+            h, s, l = rgb_to_hsl(r, g, b)
+            print(f"{h} {s} {l}")
         else:
             print("지원되지 않는 변환 형식입니다.")
             sys.exit(1)

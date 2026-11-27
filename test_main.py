@@ -1,7 +1,7 @@
 import unittest
 import sys
 from io import StringIO
-from main import main, rgb_to_hex, hex_to_rgb, hsl_to_rgb
+from main import main, rgb_to_hex, hex_to_rgb, hsl_to_rgb, rgb_to_hsl
 
 class TestMain(unittest.TestCase):
     def test_main_prints_help(self):
@@ -185,6 +185,55 @@ class TestMain(unittest.TestCase):
             sys.stdout = sys.__stdout__
             output = captured_output.getvalue().strip()
             self.assertEqual(output, "255 0 0")
+        finally:
+            sys.argv = original_argv
+
+    def test_rgb_to_hsl(self):
+        # 테스트 케이스: (r, g, b), 기대하는 (h, s, l) 튜플
+        test_cases = [
+            ((0, 0, 0), (0, 0, 0)),     # 검정
+            ((255, 255, 255), (0, 0, 100)), # 흰색
+            ((255, 0, 0), (0, 100, 50)),   # 빨강
+            ((0, 255, 0), (120, 100, 50)), # 녹색
+            ((0, 0, 255), (240, 100, 50)), # 파랑
+            ((255, 255, 0), (60, 100, 50)), # 노랑
+            ((255, 0, 255), (300, 100, 50)), # 마젠타
+            ((0, 255, 255), (180, 100, 50)), # 청록
+            ((128, 128, 128), (0, 0, 50)),  # 회색
+        ]
+
+        for (r, g, b), expected in test_cases:
+            with self.subTest(r=r, g=g, b=b):
+                result = rgb_to_hsl(r, g, b)
+                self.assertEqual(result, expected)
+
+    def test_rgb_to_hsl_invalid_values(self):
+        # 유효하지 않은 RGB 값에 대해 예외를 발생시켜야 합니다.
+        with self.assertRaises(ValueError):
+            rgb_to_hsl(-1, 0, 0)  # r가 범위 밖
+        
+        with self.assertRaises(ValueError):
+            rgb_to_hsl(0, 256, 0)  # g가 범위 밖
+        
+        with self.assertRaises(ValueError):
+            rgb_to_hsl(0, 0, 256)  # b가 범위 밖
+
+    def test_main_rgb_to_hsl_conversion(self):
+        # RGB에서 HSL로의 변환 테스트
+        original_argv = sys.argv
+        try:
+            sys.argv = ["main.py", "--from", "rgb", "--to", "hsl", "255", "0", "0"]
+            captured_output = StringIO()
+            sys.stdout = captured_output
+            
+            try:
+                main()
+            except SystemExit:
+                pass
+            
+            sys.stdout = sys.__stdout__
+            output = captured_output.getvalue().strip()
+            self.assertEqual(output, "0 100 50")
         finally:
             sys.argv = original_argv
 
